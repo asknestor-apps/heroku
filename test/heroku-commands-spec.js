@@ -220,82 +220,97 @@ describe("Heroku Commands", function() {
   });
 
   describe("heroku config:set <app> <KEY=value>", function() {
-    var mockRequest;
-    mockRequest = function(keyPair) {
-      return mockHeroku.patch("/apps/shield-global-watch/config-vars", keyPair).replyWithFile(200, __dirname + "/fixtures/config-set.json");
+    var mockRequest = function(keyPair) {
+      mockHeroku.patch("/apps/shield-global-watch/config-vars", keyPair).replyWithFile(200, __dirname + "/fixtures/config-set.json");
     };
+
     it("sets config <KEY=value>", function(done) {
       mockRequest({
         "CLOAK_ID": "example.com"
       });
-      room.user.say("Damon", "hubot heroku config:set shield-global-watch CLOAK_ID=example.com");
-      return waitForReplies(3, room, function() {
-        expect(room.messages[1][1]).to.equal("@Damon Setting config CLOAK_ID => example.com");
-        expect(room.messages[2][1]).to.equal("@Damon Heroku: CLOAK_ID is set to example.com");
-        return done();
+
+      robot.receive(new TextMessage(user, messageToNestor("heroku config:set shield-global-watch CLOAK_ID=example.com")), function() {
+        expect(robot.toSend[0].strings[0]).to.eql("Setting config CLOAK_ID => example.com");
+        expect(robot.toSend[0].reply).to.be.true;
+        expect(robot.toSend[1].strings[0]).to.eql("Heroku: CLOAK_ID is set to example.com");
+        expect(robot.toSend[1].reply).to.be.true;
+        done();
       });
     });
+
     it("handles UUIDs", function(done) {
       mockRequest({
         "UUID": "d5126f0d-b3be-46af-883f-b330a73964f9"
       });
-      room.user.say("Damon", "hubot heroku config:set shield-global-watch UUID=d5126f0d-b3be-46af-883f-b330a73964f9");
-      return waitForReplies(3, room, function() {
-        expect(room.messages[2][1]).to.equal("@Damon Heroku: UUID is set to d5126f0d-b3be-46af-883f-b330a73964f9");
-        return done();
+
+      robot.receive(new TextMessage(user, messageToNestor("heroku config:set shield-global-watch UUID=d5126f0d-b3be-46af-883f-b330a73964f9")), function() {
+        expect(robot.toSend[1].strings[0]).to.eql("Heroku: UUID is set to d5126f0d-b3be-46af-883f-b330a73964f9");
+        expect(robot.toSend[1].reply).to.be.true;
+        done();
       });
     });
+
     it("handles URLs", function(done) {
       mockRequest({
         "PUSHER_URL": "http://c0d9g8najfcc4634kd3:cf2eeas0d8dghfa847d@api.pusherapp.com/apps/1234"
       });
-      room.user.say("Damon", "hubot heroku config:set shield-global-watch PUSHER_URL=http://c0d9g8najfcc4634kd3:cf2eeas0d8dghfa847d@api.pusherapp.com/apps/1234");
-      return waitForReplies(3, room, function() {
-        expect(room.messages[2][1]).to.equal("@Damon Heroku: PUSHER_URL is set to http://c0d9g8najfcc4634kd3:cf2eeas0d8dghfa847d@api.pusherapp.com/apps/1234");
-        return done();
+
+      robot.receive(new TextMessage(user, messageToNestor("heroku config:set shield-global-watch PUSHER_URL=http://c0d9g8najfcc4634kd3:cf2eeas0d8dghfa847d@api.pusherapp.com/apps/1234")), function() {
+        expect(robot.toSend[1].strings[0]).to.eql("Heroku: PUSHER_URL is set to http://c0d9g8najfcc4634kd3:cf2eeas0d8dghfa847d@api.pusherapp.com/apps/1234");
+        expect(robot.toSend[1].reply).to.be.true;
+        done();
       });
     });
+
     it("handles comma delimited strings", function(done) {
       mockRequest({
         "COMMA_DELIMITED_STRING": "MiD,DA,MDe"
       });
-      room.user.say("Damon", "hubot heroku config:set shield-global-watch COMMA_DELIMITED_STRING=MiD,DA,MDe");
-      return waitForReplies(3, room, function() {
-        expect(room.messages[2][1]).to.equal("@Damon Heroku: COMMA_DELIMITED_STRING is set to MiD,DA,MDe");
-        return done();
+
+      robot.receive(new TextMessage(user, messageToNestor("heroku config:set shield-global-watch COMMA_DELIMITED_STRING=MiD,DA,MDe")), function() {
+        expect(robot.toSend[1].strings[0]).to.eql("Heroku: COMMA_DELIMITED_STRING is set to MiD,DA,MDe");
+        expect(robot.toSend[1].reply).to.be.true;
+        done();
       });
     });
+
     it("handles text strings", function(done) {
       mockRequest({
         "SENTENCE": "Don\'t stop believin."
       });
-      room.user.say("Damon", "hubot heroku config:set shield-global-watch SENTENCE=\"Don't stop believin.\"");
-      return waitForReplies(3, room, function() {
-        expect(room.messages[2][1]).to.equal("@Damon Heroku: SENTENCE is set to Don\'t stop believin.");
-        return done();
+
+      robot.receive(new TextMessage(user, messageToNestor("heroku config:set shield-global-watch SENTENCE=\"Don't stop believin.\"")), function() {
+        expect(robot.toSend[1].strings[0]).to.eql("Heroku: SENTENCE is set to Don\'t stop believin.");
+        expect(robot.toSend[1].reply).to.be.true;
+        done();
       });
     });
-    return it("handles RSA secret keys", function(done) {
+
+    it("handles RSA secret keys", function(done) {
       mockRequest({
         "RSA_SECRET_KEY": "----BEGIN RSA PRIVATE KEY-----\nsfsdfdssfdsFDSFDGSDfsdfsfs\nSDfSDFdUbOfFRocKsSFDSFSDFDS=\n-----END RSA PRIVATE KEY-----\n"
       });
-      room.user.say("Damon", "hubot heroku config:set shield-global-watch RSA_SECRET_KEY=\"----BEGIN RSA PRIVATE KEY-----\nsfsdfdssfdsFDSFDGSDfsdfsfs\nSDfSDFdUbOfFRocKsSFDSFSDFDS=\n-----END RSA PRIVATE KEY-----\n\"");
-      return waitForReplies(3, room, function() {
-        expect(room.messages[2][1]).to.equal("@Damon Heroku: RSA_SECRET_KEY is set to \"----BEGIN RSA PRIVATE KEY-----\nsfsdfdssfdsFDSFDGSDfsdfsfs\nSDfSDFdUbOfFRocKsSFDSFSDFDS=\n-----END RSA PRIVATE KEY-----\n\"");
-        return done();
+
+      robot.receive(new TextMessage(user, messageToNestor("heroku config:set shield-global-watch RSA_SECRET_KEY=\"----BEGIN RSA PRIVATE KEY-----\nsfsdfdssfdsFDSFDGSDfsdfsfs\nSDfSDFdUbOfFRocKsSFDSFSDFDS=\n-----END RSA PRIVATE KEY-----\n\"")), function() {
+        expect(robot.toSend[1].strings[0]).to.eql("Heroku: RSA_SECRET_KEY is set to \"----BEGIN RSA PRIVATE KEY-----\nsfsdfdssfdsFDSFDGSDfsdfsfs\nSDfSDFdUbOfFRocKsSFDSFSDFDS=\n-----END RSA PRIVATE KEY-----\n\"");
+        expect(robot.toSend[1].reply).to.be.true;
+        done();
       });
     });
   });
-  return describe("heroku config:unset <KEY>", function() {
-    return it("unsets config <KEY>", function(done) {
+
+  describe("heroku config:unset <KEY>", function() {
+    it("unsets config <KEY>", function(done) {
       mockHeroku.patch("/apps/shield-global-watch/config-vars", {
         "CLOAK_ID": null
       }).reply(200, {});
-      room.user.say("Damon", "hubot heroku config:unset shield-global-watch CLOAK_ID");
-      return waitForReplies(3, room, function() {
-        expect(room.messages[1][1]).to.equal("@Damon Unsetting config CLOAK_ID");
-        expect(room.messages[2][1]).to.equal("@Damon Heroku: CLOAK_ID has been unset");
-        return done();
+
+      robot.receive(new TextMessage(user, messageToNestor("heroku config:unset shield-global-watch CLOAK_ID")), function() {
+        expect(robot.toSend[0].strings[0]).to.eql("Unsetting config CLOAK_ID");
+        expect(robot.toSend[0].reply).to.be.true;
+        expect(robot.toSend[1].strings[0]).to.eql("Heroku: CLOAK_ID has been unset");
+        expect(robot.toSend[1].reply).to.be.true;
+        done();
       });
     });
   });

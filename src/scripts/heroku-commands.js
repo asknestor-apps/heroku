@@ -187,28 +187,31 @@ module.exports = function(robot) {
     });
   });
 
-  robot.respond(/heroku config:set (.*) (\w+)=('([\s\S]+)'|"([\s\S]+)"|([\s\S]+\b))/im, function(msg) {
+  robot.respond(/heroku config:set (.*) (\w+)=('([\s\S]+)'|"([\s\S]+)"|([\s\S]+\b))/im, function(msg, done) {
     var keyPair = {};
     var appName = msg.match[1];
     var key = msg.match[2];
     var value = msg.match[4] || msg.match[5] || msg.match[6];
 
-    msg.reply("Setting config " + key + " => " + value);
     keyPair[key] = value;
-    heroku.apps(appName).configVars().update(keyPair, function(error, configVars) {
-      respondToUser(msg, error, "Heroku: " + key + " is set to " + configVars[key]);
+
+    msg.reply("Setting config " + key + " => " + value).then(function() {
+      heroku.apps(appName).configVars().update(keyPair, function(error, configVars) {
+        respondToUser(msg, error, "Heroku: " + key + " is set to " + configVars[key], done);
+      });
     });
   });
 
-  robot.respond(/heroku config:unset (.*) (\w+)$/i, function(msg) {
+  robot.respond(/heroku config:unset (.*) (\w+)$/i, function(msg, done) {
     var keyPair = {};
     var appName = msg.match[1];
     var key = msg.match[2];
     var value = msg.match[3];
-    msg.reply("Unsetting config " + key);
-    keyPair[key] = null;
-    heroku.apps(appName).configVars().update(keyPair, function(error, response) {
-      respondToUser(msg, error, "Heroku: " + key + " has been unset");
+    msg.reply("Unsetting config " + key).then(function() {
+      keyPair[key] = null;
+      heroku.apps(appName).configVars().update(keyPair, function(error, response) {
+        respondToUser(msg, error, "Heroku: " + key + " has been unset", done);
+      });
     });
   });
 };
