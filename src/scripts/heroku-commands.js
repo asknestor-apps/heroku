@@ -177,13 +177,13 @@ module.exports = function(robot) {
     });
   });
 
-  robot.respond(/heroku config (.*)$/i, function(msg) {
+  robot.respond(/heroku config (.*)$/i, function(msg, done) {
     var appName = msg.match[1];
-    msg.reply("Getting config keys for " + appName);
-    heroku.apps(appName).configVars().info(function(error, configVars) {
-      var listOfKeys;
-      listOfKeys = configVars && Object.keys(configVars).join(", ");
-      respondToUser(msg, error, listOfKeys);
+    msg.reply("Getting config keys for " + appName).then(function() {
+      heroku.apps(appName).configVars().info(function(error, configVars) {
+        var listOfKeys = configVars && Object.keys(configVars).join(", ");
+        respondToUser(msg, error, listOfKeys, done);
+      });
     });
   });
 

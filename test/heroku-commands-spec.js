@@ -206,16 +206,19 @@ describe("Heroku Commands", function() {
   });
 
   describe("heroku config <app>", function() {
-    return it("gets a list of config keys without values", function(done) {
+    it("gets a list of config keys without values", function(done) {
       mockHeroku.get("/apps/shield-global-watch/config-vars").replyWithFile(200, __dirname + "/fixtures/config.json");
-      room.user.say("Damon", "hubot heroku config shield-global-watch");
-      return waitForReplies(3, room, function() {
-        expect(room.messages[1][1]).to.equal("@Damon Getting config keys for shield-global-watch");
-        expect(room.messages[2][1]).to.equal("@Damon CLOAK, COMMANDER, AUTOPILOT, PILOT_NAME");
-        return done();
+
+      robot.receive(new TextMessage(user, messageToNestor("heroku config shield-global-watch")), function() {
+        expect(robot.toSend[0].strings[0]).to.eql("Getting config keys for shield-global-watch");
+        expect(robot.toSend[0].reply).to.be.true;
+        expect(robot.toSend[1].strings[0]).to.eql("CLOAK, COMMANDER, AUTOPILOT, PILOT_NAME");
+        expect(robot.toSend[1].reply).to.be.true;
+        done();
       });
     });
   });
+
   describe("heroku config:set <app> <KEY=value>", function() {
     var mockRequest;
     mockRequest = function(keyPair) {
