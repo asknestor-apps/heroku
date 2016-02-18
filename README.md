@@ -31,9 +31,11 @@ This robot is focused on letting you run auxiliary commands around the heroku sy
 Roles are not available for now, but will be available at a later date.
 
 ## Installation
-The API key can be obtained here.
+The Heroku API key can be obtained here.
 
 ![Heroku API Key Illustration](http://cl.ly/image/2l081V1k1d3g/Screenshot_2014-12-09_21_02_42.png)
+
+and set it in Slack with the command `setenv NESTOR_HEROKU_API_KEY=heroku-api-key`
 
 ## Usage
 
