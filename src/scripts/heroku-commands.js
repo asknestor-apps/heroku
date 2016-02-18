@@ -44,15 +44,17 @@ module.exports = function(robot) {
     });
   });
 
-  robot.respond(/heroku info (.*)/i, function(msg) {
+  robot.respond(/heroku info (.*)/i, function(msg, done) {
     var appName = msg.match[1];
-    msg.reply("Getting information about " + appName);
-    heroku.apps(appName).info(function(error, info) {
-      var successMessage;
-      if (!error) {
-        successMessage = "\n" + objectToMessage(info, "info");
-      }
-      respondToUser(msg, error, successMessage);
+
+    msg.reply("Getting information about " + appName).then(function() {
+      heroku.apps(appName).info(function(error, info) {
+        var successMessage;
+        if (!error) {
+          successMessage = "\n" + objectToMessage(info, "info");
+        }
+        respondToUser(msg, error, successMessage, done);
+      });
     });
   });
 
