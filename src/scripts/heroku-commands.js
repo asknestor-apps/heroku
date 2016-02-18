@@ -58,34 +58,34 @@ module.exports = function(robot) {
     });
   });
 
-  robot.respond(/heroku dynos (.*)/i, function(msg) {
-    var appName;
-    appName = msg.match[1];
+  robot.respond(/heroku dynos (.*)/i, function(msg, done) {
+    var appName = msg.match[1];
 
-    msg.reply("Getting dynos of " + appName);
-    heroku.apps(appName).dynos().list(function(error, dynos) {
-      var currentFormation, dyno, i, lastFormation, len, output, timeAgo, updatedAt, updatedTime;
-      output = [];
-      if (dynos) {
-        output.push("Dynos of " + appName);
-        lastFormation = "";
-        for (i = 0, len = dynos.length; i < len; i++) {
-          dyno = dynos[i];
-          currentFormation = dyno.type + "." + dyno.size;
-          if (currentFormation !== lastFormation) {
-            if (lastFormation) {
-              output.push("");
+    msg.reply("Getting dynos of " + appName).then(function() {
+      heroku.apps(appName).dynos().list(function(error, dynos) {
+        var currentFormation, dyno, i, lastFormation, len, output, timeAgo, updatedAt, updatedTime;
+        output = [];
+        if (dynos) {
+          output.push("Dynos of " + appName);
+          lastFormation = "";
+          for (i = 0, len = dynos.length; i < len; i++) {
+            dyno = dynos[i];
+            currentFormation = dyno.type + "." + dyno.size;
+            if (currentFormation !== lastFormation) {
+              if (lastFormation) {
+                output.push("");
+              }
+              output.push("=== " + dyno.type + " (" + dyno.size + "): `" + dyno.command + "`");
+              lastFormation = currentFormation;
             }
-            output.push("=== " + dyno.type + " (" + dyno.size + "): `" + dyno.command + "`");
-            lastFormation = currentFormation;
+            updatedAt = moment(dyno.updated_at);
+            updatedTime = updatedAt.utc().format('YYYY/MM/DD HH:mm:ss');
+            timeAgo = updatedAt.fromNow();
+            output.push(dyno.name + ": " + dyno.state + " " + updatedTime + " (~ " + timeAgo + ")");
           }
-          updatedAt = moment(dyno.updated_at);
-          updatedTime = updatedAt.utc().format('YYYY/MM/DD HH:mm:ss');
-          timeAgo = updatedAt.fromNow();
-          output.push(dyno.name + ": " + dyno.state + " " + updatedTime + " (~ " + timeAgo + ")");
         }
-      }
-      respondToUser(msg, error, output.join("\n"));
+        respondToUser(msg, error, output.join("\n"), done);
+      });
     });
   });
 
