@@ -9,9 +9,9 @@ var heroku = new Heroku({
 module.exports = function(robot) {
   var respondToUser = function(robotMessage, error, successMessage, done) {
     if (error) {
-      robotMessage.reply("Shucks. An error occurred. " + error.statusCode + " - " + error.body.message, done);
+      return robotMessage.reply("Shucks. An error occurred. " + error.statusCode + " - " + error.body.message, done);
     } else {
-      robotMessage.reply(successMessage, done);
+      return robotMessage.reply(successMessage, done);
     }
   };
 
@@ -157,20 +157,22 @@ module.exports = function(robot) {
     });
   });
 
-  robot.respond(/heroku migrate (.*)/i, function(msg) {
+  robot.respond(/heroku migrate (.*)/i, function(msg, done) {
     var appName = msg.match[1];
 
-    msg.reply("Telling Heroku to migrate " + appName);
-    heroku.apps(appName).dynos().create({
-      command: "rake db:migrate",
-      attach: false
-    }, function(error, dyno) {
-      respondToUser(msg, error, "Heroku: Running migrations for " + appName);
-      heroku.apps(appName).logSessions().create({
-        dyno: dyno.name,
-        tail: true
-      }, function(error, session) {
-        respondToUser(msg, error, "View logs at: " + session.logplex_url);
+    msg.reply("Telling Heroku to migrate " + appName).then(function() {
+      heroku.apps(appName).dynos().create({
+        command: "rake db:migrate",
+        attach: false
+      }, function(error, dyno) {
+        respondToUser(msg, error, "Heroku: Running migrations for " + appName).then(function() {
+          heroku.apps(appName).logSessions().create({
+            dyno: dyno.name,
+            tail: true
+          }, function(error, session) {
+            respondToUser(msg, error, "View logs at: " + session.logplex_url, done);
+          });
+        });
       });
     });
   });

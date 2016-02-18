@@ -34,7 +34,7 @@ describe("Heroku Commands", function() {
     return "<@" + robot.botId + ">: " + command;
   }
 
-  describe.only("heroku list apps <app name>", function() {
+  describe("heroku list apps <app name>", function() {
     beforeEach(function() {
       mockHeroku.get("/apps").replyWithFile(200, __dirname + "/fixtures/app-list.json");
     });
@@ -110,7 +110,7 @@ describe("Heroku Commands", function() {
     });
   });
 
-  describe.only("heroku rollback <app> <version>", function() {
+  describe("heroku rollback <app> <version>", function() {
     beforeEach(function() {
       mockHeroku.get("/apps/shield-global-watch/releases").replyWithFile(200, __dirname + "/fixtures/releases.json");
       mockHeroku.post('/apps/shield-global-watch/releases').replyWithFile(200, __dirname + "/fixtures/rollback.json");
@@ -179,26 +179,32 @@ describe("Heroku Commands", function() {
         command: "rake db:migrate",
         attach: false
       }).replyWithFile(200, __dirname + "/fixtures/migrate.json");
+
       mockHeroku.post("/apps/shield-global-watch/log-sessions", {
         dyno: "run.6454",
         tail: true
       }).replyWithFile(200, __dirname + "/fixtures/log-session.json");
-      return room.user.say("Damon", "hubot heroku migrate shield-global-watch");
     });
+
     it("runs migrations", function(done) {
-      return waitForReplies(3, room, function() {
-        expect(room.messages[1][1]).to.equal("@Damon Telling Heroku to migrate shield-global-watch");
-        expect(room.messages[2][1]).to.equal("@Damon Heroku: Running migrations for shield-global-watch");
-        return done();
+      robot.receive(new TextMessage(user, messageToNestor("heroku migrate shield-global-watch")), function() {
+        expect(robot.toSend[0].strings[0]).to.eql("Telling Heroku to migrate shield-global-watch");
+        expect(robot.toSend[0].reply).to.be.true;
+        expect(robot.toSend[1].strings[0]).to.eql("Heroku: Running migrations for shield-global-watch");
+        expect(robot.toSend[1].reply).to.be.true;
+        done();
       });
     });
-    return it("returns the logplex_url", function(done) {
-      return waitForReplies(4, room, function() {
-        expect(room.messages[3][1]).to.equal("@Damon View logs at: https://logplex.heroku.com/sessions/9d4f18cd-d9k8-39a5-ddef-a47dfa443z74?srv=1418011757");
-        return done();
+
+    it("returns the logplex_url", function(done) {
+      robot.receive(new TextMessage(user, messageToNestor("heroku migrate shield-global-watch")), function() {
+        expect(robot.toSend[2].strings[0]).to.eql("View logs at: https://logplex.heroku.com/sessions/9d4f18cd-d9k8-39a5-ddef-a47dfa443z74?srv=1418011757");
+        expect(robot.toSend[2].reply).to.be.true;
+        done();
       });
     });
   });
+
   describe("heroku config <app>", function() {
     return it("gets a list of config keys without values", function(done) {
       mockHeroku.get("/apps/shield-global-watch/config-vars").replyWithFile(200, __dirname + "/fixtures/config.json");
