@@ -140,32 +140,39 @@ describe("Heroku Commands", function() {
   describe("heroku restart <app> <dyno>", function() {
     it("restarts the app", function(done) {
       mockHeroku["delete"]("/apps/shield-global-watch/dynos").reply(200, {});
-      room.user.say("Damon", "hubot heroku restart shield-global-watch");
-      return waitForReplies(3, room, function() {
-        expect(room.messages[1][1]).to.equal("@Damon Telling Heroku to restart shield-global-watch");
-        expect(room.messages[2][1]).to.equal("@Damon Heroku: Restarting shield-global-watch");
-        return done();
+      robot.receive(new TextMessage(user, messageToNestor("heroku restart shield-global-watch")), function() {
+        expect(robot.toSend[0].strings[0]).to.eql("Telling Heroku to restart shield-global-watch");
+        expect(robot.toSend[0].reply).to.be.true;
+        expect(robot.toSend[1].strings[0]).to.eql("Heroku: Restarting shield-global-watch");
+        expect(robot.toSend[1].reply).to.be.true;
+        done();
       });
     });
+
     it("restarts all dynos of a process", function(done) {
       mockHeroku["delete"]("/apps/shield-global-watch/dynos/web").reply(200, {});
-      room.user.say("Damon", "hubot heroku restart shield-global-watch web");
-      return waitForReplies(3, room, function() {
-        expect(room.messages[1][1]).to.equal("@Damon Telling Heroku to restart shield-global-watch web");
-        expect(room.messages[2][1]).to.equal("@Damon Heroku: Restarting shield-global-watch web");
-        return done();
+      robot.receive(new TextMessage(user, messageToNestor("heroku restart shield-global-watch web")), function() {
+        expect(robot.toSend[0].strings[0]).to.eql("Telling Heroku to restart shield-global-watch web");
+        expect(robot.toSend[0].reply).to.be.true;
+        expect(robot.toSend[1].strings[0]).to.eql("Heroku: Restarting shield-global-watch web");
+        expect(robot.toSend[1].reply).to.be.true;
+        done();
       });
     });
-    return it("restarts specific dynos", function(done) {
+
+    it("restarts specific dynos", function(done) {
       mockHeroku["delete"]("/apps/shield-global-watch/dynos/web.1").reply(200, {});
-      room.user.say("Damon", "hubot heroku restart shield-global-watch web.1");
-      return waitForReplies(3, room, function() {
-        expect(room.messages[1][1]).to.equal("@Damon Telling Heroku to restart shield-global-watch web.1");
-        expect(room.messages[2][1]).to.equal("@Damon Heroku: Restarting shield-global-watch web.1");
-        return done();
+
+      robot.receive(new TextMessage(user, messageToNestor("heroku restart shield-global-watch web.1")), function() {
+        expect(robot.toSend[0].strings[0]).to.eql("Telling Heroku to restart shield-global-watch web.1");
+        expect(robot.toSend[0].reply).to.be.true;
+        expect(robot.toSend[1].strings[0]).to.eql("Heroku: Restarting shield-global-watch web.1");
+        expect(robot.toSend[1].reply).to.be.true;
+        done();
       });
     });
   });
+
   describe("heroku migrate <app>", function() {
     beforeEach(function() {
       mockHeroku.post("/apps/shield-global-watch/dynos", {

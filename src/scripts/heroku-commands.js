@@ -139,21 +139,22 @@ module.exports = function(robot) {
     }
   });
 
-  robot.respond(/heroku restart ([\w-]+)\s?(\w+(?:\.\d+)?)?/i, function(msg) {
-    var appName, dynoName, dynoNameText;
-    appName = msg.match[1];
-    dynoName = msg.match[2];
-    dynoNameText = dynoName ? ' ' + dynoName : '';
-    msg.reply("Telling Heroku to restart " + appName + dynoNameText);
-    if (!dynoName) {
-      heroku.apps(appName).dynos().restartAll(function(error, app) {
-        respondToUser(msg, error, "Heroku: Restarting " + appName);
-      });
-    } else {
-      heroku.apps(appName).dynos(dynoName).restart(function(error, app) {
-        respondToUser(msg, error, "Heroku: Restarting " + appName + dynoNameText);
-      });
-    }
+  robot.respond(/heroku restart ([\w-]+)\s?(\w+(?:\.\d+)?)?/i, function(msg, done) {
+    var appName = msg.match[1];
+    var dynoName = msg.match[2];
+    var dynoNameText = dynoName ? ' ' + dynoName : '';
+
+    msg.reply("Telling Heroku to restart " + appName + dynoNameText).then(function() {
+      if (!dynoName) {
+        heroku.apps(appName).dynos().restartAll(function(error, app) {
+          respondToUser(msg, error, "Heroku: Restarting " + appName, done);
+        });
+      } else {
+        heroku.apps(appName).dynos(dynoName).restart(function(error, app) {
+          respondToUser(msg, error, "Heroku: Restarting " + appName + dynoNameText, done);
+        });
+      }
+    });
   });
 
   robot.respond(/heroku migrate (.*)/i, function(msg) {
