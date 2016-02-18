@@ -7,36 +7,40 @@ var heroku = new Heroku({
 });
 
 module.exports = function(robot) {
-  var respondToUser = function(robotMessage, error, successMessage) {
+  var respondToUser = function(robotMessage, error, successMessage, done) {
     if (error) {
-      robotMessage.reply("Shucks. An error occurred. " + error.statusCode + " - " + error.body.message);
+      robotMessage.reply("Shucks. An error occurred. " + error.statusCode + " - " + error.body.message, done);
     } else {
-      robotMessage.reply(successMessage);
+      robotMessage.reply(successMessage, done);
     }
   };
 
-  robot.respond(/(heroku list apps)\s?(.*)/i, function(msg) {
+  robot.respond(/(heroku list apps)\s?(.*)/i, function(msg, done) {
     var searchName;
+    var promise;
 
     if (msg.match[2].length > 0) {
       searchName = msg.match[2];
     }
 
     if (searchName) {
-      msg.reply("Listing apps matching: " + searchName);
+      promise = msg.reply("Listing apps matching: " + searchName);
     } else {
-      msg.reply("Listing all apps available...");
+      promise = msg.reply("Listing all apps available...");
     }
 
-    heroku.apps().list(function(error, list) {
-      var result;
-      list = list.filter(function(item) {
-        item.name.match(new RegExp(searchName, "i"));
+    promise.then(function() {
+      heroku.apps().list(function(error, list) {
+        var result;
+        list = list.filter(function(item) {
+          return (item.name.match(new RegExp(searchName, "i")) !== null);
+        });
+
+        result = list.length > 0 ? list.map(function(app) {
+          return objectToMessage(app, "appShortInfo");
+        }).join("\n\n") : "No apps found";
+        respondToUser(msg, error, result, done);
       });
-      result = list.length > 0 ? list.map(function(app) {
-        return objectToMessage(app, "appShortInfo");
-      }).join("\n\n") : "No apps found";
-      respondToUser(msg, error, result);
     });
   });
 
