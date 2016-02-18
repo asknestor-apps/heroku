@@ -1,10 +1,10 @@
-hubot-heroku
-======================
+Heroku for Nestor
+=================
 
 [![npm version](https://badge.fury.io/js/hubot-heroku.svg)](https://github.com/daemonsy/hubot-heroku)
 [![CircleCI Status](https://circleci.com/gh/daemonsy/hubot-heroku.svg?style=shield)](https://github.com/daemonsy/hubot-heroku)
 
-A hubot library that exposes heroku commands via Heroku's Platform API, with focus of letting non privileged developers carry out tasks around deployments, but not run dangerous commands or get access to the data.
+A library that exposes heroku commands via Heroku's Platform API, with focus of letting non privileged developers carry out tasks around deployments, but not run dangerous commands or get access to the data.
 
 ## Background
 
@@ -27,54 +27,31 @@ Deployment usually involves some form of CI process. Hence it is best suited for
 This robot is focused on letting you run auxiliary commands around the heroku system, so developers don't have to be given production access to independently manage deployments.
 
 ## Auth
-You can restrict command usage to specific roles using the [hubot-auth](https://github.com/hubot-scripts/hubot-auth) package. Role names take the form `heroku-<app>`.
 
-To enable auth:
-
-1. `npm install hubot-auth --save`
-2. Add `hubot-auth` to `external-scripts.json` (e.g. `["hubot-auth", "some-other-plugin"]`)
-3. Set `HUBOT_HEROKU_USE_AUTH` to `true`.
-4. Assign roles: `hubot <user> has heroku-<app> role`
-
-## Security
-You can set config variables using this. Hence the Heroku API key used should not have access to your hubot instance on Heroku. For example:
-
-```
-hubot heroku config:set my-hubot HUBOT_ADMIN=dr_evil
-# Muhaha, now I'm to use hubot's other commands to take over the world
-```
-
-You can also avoid this if you are using auth as described above, in which case you can ensure only admins have the role necessary to set config variables on the hubot instance.
+Roles are not available for now, but will be available at a later date.
 
 ## Installation
-1. `npm install hubot-heroku --save`
-2. Add `hubot-heroku` to `external-scripts.json` (e.g. `["hubot-heroku", "some-other-plugin"]`)
-3. Before deployment, set `HUBOT_HEROKU_API_KEY` to a heroku account's API key. This user must have access to the apps you want to use this script on.
-4. The full list of commands can be obtained using `hubot help`. The commands usually follow hubot heroku <action> <app> <extra info>
-
 The API key can be obtained here.
 
 ![Heroku API Key Illustration](http://cl.ly/image/2l081V1k1d3g/Screenshot_2014-12-09_21_02_42.png)
 
 ## Usage
-Use `hubot help` to look for the commands. They are all prefixed by heroku. (e.g. `hubot heroku restart my-app`)
-Some commands (hubot help will be a better source of truth):
 
-- `hubot heroku list apps <app name filter>` - Lists all apps or filtered by the name
-- `hubot heroku info <app>` - Returns useful information about the app
-- `hubot heroku dynos <app>` - Lists all dynos and their status
-- `hubot heroku releases <app>` - Latest 10 releases
-- `hubot heroku rollback <app>` <version> - Rollback to a release
-- `hubot heroku restart <app> <dyno>` - Restarts the specified app or dyno/s (e.g. `worker` or `web.2`)
-- `hubot heroku migrate <app>` - Runs migrations. Remember to restart the app =)
-- `hubot heroku config <app>` - Get config keys for the app. Values not given for security
-- `hubot heroku config:set <app> <KEY=value>` - Set KEY to value. Case sensitive and overrides present key
-- `hubot heroku config:unset <app> <KEY>` - Unsets KEY, does not throw error if key is not present
+- `heroku list apps <app name filter>` - Lists all apps or filtered by the name
+- `heroku info <app>` - Returns useful information about the app
+- `heroku dynos <app>` - Lists all dynos and their status
+- `heroku releases <app>` - Latest 10 releases
+- `heroku rollback <app>` <version> - Rollback to a release
+- `heroku restart <app> <dyno>` - Restarts the specified app or dyno/s (e.g. `worker` or `web.2`)
+- `heroku migrate <app>` - Runs migrations. Remember to restart the app =)
+- `heroku config <app>` - Get config keys for the app. Values not given for security
+- `heroku config:set <app> <KEY=value>` - Set KEY to value. Case sensitive and overrides present key
+- `heroku config:unset <app> <KEY>` - Unsets KEY, does not throw error if key is not present
 
-For example, `hubot heroku config:set API_KEY=12345`
+For example, `heroku config:set API_KEY=12345`
 
 ## Troubleshooting
-If you get hubot errors, this might help:
+If you get errors, this might help:
 - 400  - Bad request. Hit me with an issue
 - 401  - Most likely the API key is incorrect or missing
 - 402  - According to Heroku, you need to pay them
@@ -89,24 +66,3 @@ Reference the [API documentation](https://devcenter.heroku.com/articles/platform
 - Chai for BDD expect syntax
 
 Run tests by running `npm test`
-
-## Debugging
-
-### Get Node Inspector working
-```bash
-npm install -g node-inspector
-node-inspector --no-preload --web-port 8123
-```
-
-### Get hubot to run with debugging on
-```bash
-# In your hubot folder
-npm link /path/to/hubot-heroku
-coffee --nodejs --debug node_modules/.bin/hubot
-```
-
-Visit `http://127.0.0.1:8123/debug?port=5858` and use `debugger` statements to pause execution.
-
-## Contributing
-
-PRs and Issues greatly welcomed. Please read [Contributing](https://github.com/daemonsy/hubot-heroku/blob/master/CONTRIBUTING.md) for more information.
