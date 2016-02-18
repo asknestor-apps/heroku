@@ -89,23 +89,26 @@ module.exports = function(robot) {
     });
   });
 
-  robot.respond(/heroku releases (.*)$/i, function(msg) {
+  robot.respond(/heroku releases (.*)$/i, function(msg, done) {
     var appName = msg.match[1];
-    msg.reply("Getting releases for " + appName);
-    heroku.apps(appName).releases().list(function(error, releases) {
-      var i, len, output, ref, release;
-      output = [];
-      if (releases) {
-        output.push("Recent releases of " + appName);
-        ref = releases.sort(function(a, b) {
-          return b.version - a.version;
-        }).slice(0, 10);
-        for (i = 0, len = ref.length; i < len; i++) {
-          release = ref[i];
-          output.push("v" + release.version + " - " + release.description + " - " + release.user.email + " -  " + release.created_at);
+
+    msg.reply("Getting releases for " + appName).then(function() {
+      heroku.apps(appName).releases().list(function(error, releases) {
+        var i, len, output, ref, release;
+        output = [];
+        if (releases) {
+          output.push("Recent releases of " + appName);
+          ref = releases.sort(function(a, b) {
+            return b.version - a.version;
+          }).slice(0, 10);
+          for (i = 0, len = ref.length; i < len; i++) {
+            release = ref[i];
+            output.push("v" + release.version + " - " + release.description + " - " + release.user.email + " -  " + release.created_at);
+          }
         }
-      }
-      respondToUser(msg, error, output.join("\n"));
+
+        respondToUser(msg, error, output.join("\n"), done);
+      });
     });
   });
 

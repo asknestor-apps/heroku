@@ -91,21 +91,25 @@ describe("Heroku Commands", function() {
         expect(robot.toSend[1].strings[0]).to.include("\nweb.2: crashed 2015/01/01 12:00:00");
         expect(robot.toSend[1].strings[0]).to.include("\n\n=== worker (2X): `celery worker`\nworker.1: up 2015/06/01 12:00:00");
         expect(robot.toSend[1].reply).to.be.true;
-        return done();
+        done();
       });
     });
   });
+
   describe("heroku releases <app>", function() {
-    return it("gets the 10 recent releases", function(done) {
+    it("gets the 10 recent releases", function(done) {
       mockHeroku.get("/apps/shield-global-watch/releases").replyWithFile(200, __dirname + "/fixtures/releases.json");
-      room.user.say("Damon", "hubot heroku releases shield-global-watch");
-      return waitForReplies(3, room, function() {
-        expect(room.messages[1][1]).to.equal("@Damon Getting releases for shield-global-watch");
-        expect(room.messages[2][1]).to.include("@Damon Recent releases of shield-global-watch\nv352 - Promote shield-global-watch v287 fb2b5ff - phil@shield.com");
-        return done();
+
+      robot.receive(new TextMessage(user, messageToNestor("heroku releases shield-global-watch")), function() {
+        expect(robot.toSend[0].strings[0]).to.eql("Getting releases for shield-global-watch");
+        expect(robot.toSend[0].reply).to.be.true;
+        expect(robot.toSend[1].strings[0]).to.include("Recent releases of shield-global-watch\nv352 - Promote shield-global-watch v287 fb2b5ff - phil@shield.com");
+        expect(robot.toSend[1].reply).to.be.true;
+        done();
       });
     });
   });
+
   describe("heroku rollback <app> <version>", function() {
     beforeEach(function() {
       mockHeroku.get("/apps/shield-global-watch/releases").replyWithFile(200, __dirname + "/fixtures/releases.json");
