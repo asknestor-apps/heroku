@@ -3,7 +3,7 @@ var objectToMessage = require("../object-to-message");
 var moment = require('moment');
 var _ = require('lodash');
 var heroku = new Heroku({
-  token: process.env.HUBOT_HEROKU_API_KEY
+  token: process.env.NESTOR_HEROKU_API_KEY
 });
 
 module.exports = function(robot) {
