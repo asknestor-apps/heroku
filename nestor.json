@@ -1,0 +1,8 @@
+{
+  "name": "Heroku",
+  "permalink": "heroku",
+  "description": "Manage Heroku from Nestor",
+  "environment_keys": {
+    "NESTOR_HEROKU_API_KEY" : true
+  }
+}
