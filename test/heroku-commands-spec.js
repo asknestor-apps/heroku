@@ -110,28 +110,33 @@ describe("Heroku Commands", function() {
     });
   });
 
-  describe("heroku rollback <app> <version>", function() {
+  describe.only("heroku rollback <app> <version>", function() {
     beforeEach(function() {
       mockHeroku.get("/apps/shield-global-watch/releases").replyWithFile(200, __dirname + "/fixtures/releases.json");
-      return mockHeroku.post('/apps/shield-global-watch/releases').replyWithFile(200, __dirname + "/fixtures/rollback.json");
+      mockHeroku.post('/apps/shield-global-watch/releases').replyWithFile(200, __dirname + "/fixtures/rollback.json");
     });
+
     it("rolls back the app to the specified version", function(done) {
-      room.user.say("Damon", "hubot heroku rollback shield-global-watch v352");
-      return waitForReplies(3, room, function() {
-        expect(room.messages[1][1]).to.equal("@Damon Telling Heroku to rollback to v352");
-        expect(room.messages[2][1]).to.equal("@Damon Success! v353 -> Rollback to v352");
-        return done();
+      robot.receive(new TextMessage(user, messageToNestor("heroku rollback shield-global-watch v352")), function() {
+        expect(robot.toSend[0].strings[0]).to.eql("Telling Heroku to rollback to v352");
+        expect(robot.toSend[0].reply).to.be.true;
+        expect(robot.toSend[1].strings[0]).to.include("Success! v353 -> Rollback to v352");
+        expect(robot.toSend[1].reply).to.be.true;
+        done();
       });
     });
-    return it("tells the user about a bad supplied version", function(done) {
-      room.user.say("Damon", "hubot heroku rollback shield-global-watch v999");
-      return waitForReplies(3, room, function() {
-        expect(room.messages[1][1]).to.equal("@Damon Telling Heroku to rollback to v999");
-        expect(room.messages[2][1]).to.equal("@Damon Version v999 not found for shield-global-watch :(");
-        return done();
+
+    it("tells the user about a bad supplied version", function(done) {
+      robot.receive(new TextMessage(user, messageToNestor("heroku rollback shield-global-watch v999")), function() {
+        expect(robot.toSend[0].strings[0]).to.eql("Telling Heroku to rollback to v999");
+        expect(robot.toSend[0].reply).to.be.true;
+        expect(robot.toSend[1].strings[0]).to.include("Version v999 not found for shield-global-watch :(");
+        expect(robot.toSend[1].reply).to.be.true;
+        done();
       });
     });
   });
+
   describe("heroku restart <app> <dyno>", function() {
     it("restarts the app", function(done) {
       mockHeroku["delete"]("/apps/shield-global-watch/dynos").reply(200, {});

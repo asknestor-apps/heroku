@@ -112,25 +112,28 @@ module.exports = function(robot) {
     });
   });
 
-  robot.respond(/heroku rollback (.*) (.*)$/i, function(msg) {
+  robot.respond(/heroku rollback (.*) (.*)$/i, function(msg, done) {
     var appName = msg.match[1];
     var version = msg.match[2];
 
     if (version.match(/v\d+$/)) {
-      msg.reply("Telling Heroku to rollback to " + version);
-      app = heroku.apps(appName);
-      app.releases().list(function(error, releases) {
-        var release;
-        release = _.find(releases, function(release) {
-          return ("v" + release.version) === version;
-        });
-        if (!release) {
-          msg.reply("Version " + version + " not found for " + appName + " :(");
-        }
-        app.releases().rollback({
-          release: release.id
-        }, function(error, release) {
-          respondToUser(msg, error, "Success! v" + release.version + " -> Rollback to " + version);
+      msg.reply("Telling Heroku to rollback to " + version).then(function() {
+        app = heroku.apps(appName);
+        app.releases().list(function(error, releases) {
+          var release;
+          release = _.find(releases, function(release) {
+            return ("v" + release.version) === version;
+          });
+
+          if (!release) {
+            msg.reply("Version " + version + " not found for " + appName + " :(", done);
+          } else {
+            app.releases().rollback({
+              release: release.id
+            }, function(error, release) {
+              respondToUser(msg, error, "Success! v" + release.version + " -> Rollback to " + version, done);
+            });
+          }
         });
       });
     }
