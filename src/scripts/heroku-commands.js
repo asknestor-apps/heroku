@@ -37,8 +37,8 @@ module.exports = function(robot) {
         });
 
         result = list.length > 0 ? list.map(function(app) {
-          return objectToMessage(app, "appShortInfo");
-        }).join("\n\n") : "No apps found";
+          return objectToMessage(app, msg, 'short');
+        }) : "No apps found";
         respondToUser(msg, error, result, done);
       });
     });
@@ -51,7 +51,7 @@ module.exports = function(robot) {
       heroku.apps(appName).info(function(error, info) {
         var successMessage;
         if (!error) {
-          successMessage = "\n" + objectToMessage(info, "info");
+          successMessage = objectToMessage(info, msg, 'full');
         }
         respondToUser(msg, error, successMessage, done);
       });
@@ -84,7 +84,8 @@ module.exports = function(robot) {
             output.push(dyno.name + ": " + dyno.state + " " + updatedTime + " (~ " + timeAgo + ")");
           }
         }
-        respondToUser(msg, error, output.join("\n"), done);
+
+        respondToUser(msg, error, output, done);
       });
     });
   });
@@ -101,13 +102,27 @@ module.exports = function(robot) {
           ref = releases.sort(function(a, b) {
             return b.version - a.version;
           }).slice(0, 10);
+
           for (i = 0, len = ref.length; i < len; i++) {
             release = ref[i];
-            output.push("v" + release.version + " - " + release.description + " - " + release.user.email + " -  " + release.created_at);
+            output.push(msg.newRichResponse({
+              title: "v" + release.version + " - " + release.description,
+              fallback: "v" + release.version + " - " + release.description,
+              fields: [{
+                "title": "Deployed By",
+                "value": release.user.email,
+                "short": true
+              },
+              {
+                "title": "Deployed",
+                "value": moment(release.created_at).fromNow(),
+                "short": true
+              }]
+            }));
           }
         }
 
-        respondToUser(msg, error, output.join("\n"), done);
+        respondToUser(msg, error, output, done);
       });
     });
   });
