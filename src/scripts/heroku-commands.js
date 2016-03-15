@@ -15,7 +15,7 @@ module.exports = function(robot) {
     }
   };
 
-  robot.respond(/(heroku list apps)\s?(.*)/i, function(msg, done) {
+  robot.respond(/(heroku list apps)\s?(.*)/i, { suggestions: ["heroku list apps <app-filter>"] }, function(msg, done) {
     var searchName;
     var promise;
 
@@ -44,7 +44,7 @@ module.exports = function(robot) {
     });
   });
 
-  robot.respond(/heroku info (.*)/i, function(msg, done) {
+  robot.respond(/heroku info (.*)/i, { suggestions: ["heroku info <app>"] }, function(msg, done) {
     var appName = msg.match[1];
 
     msg.reply("Getting information about " + appName).then(function() {
@@ -58,7 +58,7 @@ module.exports = function(robot) {
     });
   });
 
-  robot.respond(/heroku dynos (.*)/i, function(msg, done) {
+  robot.respond(/heroku dynos (.*)/i, { suggestions: ["heroku dynos <app>"] }, function(msg, done) {
     var appName = msg.match[1];
 
     msg.reply("Getting dynos of " + appName).then(function() {
@@ -90,7 +90,7 @@ module.exports = function(robot) {
     });
   });
 
-  robot.respond(/heroku releases (.*)$/i, function(msg, done) {
+  robot.respond(/heroku releases (.*)$/i, { suggestions: ["heroku releases <app>"] }, function(msg, done) {
     var appName = msg.match[1];
 
     msg.reply("Getting releases for " + appName).then(function() {
@@ -127,7 +127,7 @@ module.exports = function(robot) {
     });
   });
 
-  robot.respond(/heroku rollback (.*) (.*)$/i, function(msg, done) {
+  robot.respond(/heroku rollback (.*) (.*)$/i, { suggestions: ["heroku rollback <app> <version>"] }, function(msg, done) {
     var appName = msg.match[1];
     var version = msg.match[2];
 
@@ -154,7 +154,7 @@ module.exports = function(robot) {
     }
   });
 
-  robot.respond(/heroku restart ([\w-]+)\s?(\w+(?:\.\d+)?)?/i, function(msg, done) {
+  robot.respond(/heroku restart ([\w-]+)\s?(\w+(?:\.\d+)?)?/i, { suggestions: ["heroku restart <app> <dyno>"] }, function(msg, done) {
     var appName = msg.match[1];
     var dynoName = msg.match[2];
     var dynoNameText = dynoName ? ' ' + dynoName : '';
@@ -172,7 +172,7 @@ module.exports = function(robot) {
     });
   });
 
-  robot.respond(/heroku migrate (.*)/i, function(msg, done) {
+  robot.respond(/heroku migrate (.*)/i,  { suggestions: ["heroku migrate <app>"] }, function(msg, done) {
     var appName = msg.match[1];
 
     msg.reply("Telling Heroku to migrate " + appName).then(function() {
@@ -192,7 +192,7 @@ module.exports = function(robot) {
     });
   });
 
-  robot.respond(/heroku config (.*)$/i, function(msg, done) {
+  robot.respond(/heroku config (.*)$/i, { suggestions: ["heroku config <app>"] }, function(msg, done) {
     var appName = msg.match[1];
     msg.reply("Getting config keys for " + appName).then(function() {
       heroku.apps(appName).configVars().info(function(error, configVars) {
@@ -202,7 +202,7 @@ module.exports = function(robot) {
     });
   });
 
-  robot.respond(/heroku config:set (.*) (\w+)=('([\s\S]+)'|"([\s\S]+)"|([\s\S]+\b))/im, function(msg, done) {
+  robot.respond(/heroku config:set (.*) (\w+)=('([\s\S]+)'|"([\s\S]+)"|([\s\S]+\b))/im,  { suggestions: ["heroku config:set <app> KEY=VAL"] },function(msg, done) {
     var keyPair = {};
     var appName = msg.match[1];
     var key = msg.match[2];
@@ -217,7 +217,7 @@ module.exports = function(robot) {
     });
   });
 
-  robot.respond(/heroku config:unset (.*) (\w+)$/i, function(msg, done) {
+  robot.respond(/heroku config:unset (.*) (\w+)$/i,  { suggestions: ["heroku config:unset <app> KEY"] }, function(msg, done) {
     var keyPair = {};
     var appName = msg.match[1];
     var key = msg.match[2];
