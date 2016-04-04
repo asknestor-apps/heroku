@@ -31,15 +31,19 @@ module.exports = function(robot) {
 
     promise.then(function() {
       heroku.apps().list(function(error, list) {
-        var result;
-        list = list.filter(function(item) {
-          return (item.name.match(new RegExp(searchName, "i")) !== null);
-        });
+        if (list) {
+          var result;
+          list = list.filter(function(item) {
+            return (item.name.match(new RegExp(searchName, "i")) !== null);
+          });
 
-        result = list.length > 0 ? list.map(function(app) {
-          return objectToMessage(app, msg, 'short');
-        }) : "No apps found";
-        respondToUser(msg, error, result, done);
+          result = list.length > 0 ? list.map(function(app) {
+            return objectToMessage(app, msg, 'short');
+          }) : "No apps found";
+          respondToUser(msg, error, result, done);
+        } else {
+          respondToUser(msg, error, "", done);
+        }
       });
     });
   });
@@ -135,19 +139,23 @@ module.exports = function(robot) {
       msg.reply("Telling Heroku to rollback to " + version).then(function() {
         app = heroku.apps(appName);
         app.releases().list(function(error, releases) {
-          var release;
-          release = _.find(releases, function(release) {
-            return ("v" + release.version) === version;
-          });
-
-          if (!release) {
-            msg.reply("Version " + version + " not found for " + appName + " :(", done);
-          } else {
-            app.releases().rollback({
-              release: release.id
-            }, function(error, release) {
-              respondToUser(msg, error, "Success! v" + release.version + " -> Rollback to " + version, done);
+          if(releases) {
+            var release;
+            release = _.find(releases, function(release) {
+              return ("v" + release.version) === version;
             });
+
+            if (!release) {
+              msg.reply("Version " + version + " not found for " + appName + " :(", done);
+            } else {
+              app.releases().rollback({
+                release: release.id
+              }, function(error, release) {
+                respondToUser(msg, error, "Success! v" + release.version + " -> Rollback to " + version, done);
+              });
+            }
+          } else {
+            respondToUser(msg, error, "", done);
           }
         });
       });
